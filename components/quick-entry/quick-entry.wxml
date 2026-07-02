@@ -1,0 +1,4 @@
+<view class="quick-entry" style="background: {{bgColor}};" bindtap="onTap">
+  <text class="quick-entry__icon">{{icon}}</text>
+  <text class="quick-entry__label">{{label}}</text>
+</view>

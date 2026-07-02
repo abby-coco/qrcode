@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="filter-bar">
+    <view
+      class="filter-chip {{filter === item.value ? 'filter-chip--active' : ''}}"
+      wx:for="{{filters}}"
+      wx:key="value"
+      bindtap="setFilter"
+      data-value="{{item.value}}"
+    >{{item.label}}</view>
+  </view>
+
+  <view class="card" wx:if="{{history.length}}">
+    <view class="history-item" wx:for="{{history}}" wx:key="id" wx:for-index="idx">
+      <view class="history-item__main" bindtap="viewItem" data-index="{{idx}}">
+        <view class="history-item__top">
+          <text class="tag tag-purple">{{item.typeLabel}}</text>
+          <text class="history-item__time">{{item.timeStr}}</text>
+        </view>
+        <text class="history-item__title">{{item.title}}</text>
+        <text class="history-item__preview">{{item.preview}}</text>
+      </view>
+      <text class="history-item__del" bindtap="deleteItem" data-id="{{item.id}}">删除</text>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">📋</text>
+    <text>暂无记录</text>
+  </view>
+
+  <button class="btn-outline" wx:if="{{history.length}}" bindtap="clearAll" style="margin-top:24rpx;">清空全部</button>
+</view>

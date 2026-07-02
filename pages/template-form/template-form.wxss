@@ -1,0 +1,23 @@
+.template-header {
+  text-align: center;
+  margin-bottom: 32rpx;
+}
+
+.template-header__icon {
+  font-size: 64rpx;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.template-header__title {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.input-label {
+  margin-top: 20rpx;
+}
+
+.input-label:first-of-type {
+  margin-top: 0;
+}

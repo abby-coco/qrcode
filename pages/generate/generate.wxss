@@ -1,0 +1,31 @@
+.char-count {
+  text-align: right;
+  font-size: 24rpx;
+  color: #bbbbbb;
+  margin-top: 8rpx;
+}
+
+.decode-link {
+  font-size: 24rpx;
+  color: #7c6cf0;
+}
+
+.cloud-notice {
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  background: #f0edff;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  color: #7c6cf0;
+  line-height: 1.5;
+}
+
+.tap-btn {
+  text-align: center;
+  line-height: 1.4;
+  padding: 24rpx 0;
+}
+
+.tap-btn:active {
+  opacity: 0.85;
+}

@@ -1,0 +1,14 @@
+.tip {
+  font-size: 24rpx;
+  color: #7c6cf0;
+  display: block;
+  margin-bottom: 24rpx;
+}
+
+.input-label {
+  margin-top: 20rpx;
+}
+
+.input-label:first-of-type {
+  margin-top: 0;
+}

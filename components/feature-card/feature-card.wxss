@@ -1,0 +1,68 @@
+.feature-card {
+  border-radius: 24rpx;
+  padding: 28rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card--large {
+  min-height: 320rpx;
+}
+
+.feature-card--medium {
+  min-height: 140rpx;
+  flex-direction: row;
+  align-items: center;
+  padding: 24rpx 28rpx;
+}
+
+.feature-card--medium .feature-card__icon {
+  font-size: 48rpx;
+  margin-bottom: 0;
+  margin-right: 20rpx;
+}
+
+.feature-card--medium .feature-card__content {
+  flex: 1;
+}
+
+.feature-card--medium .feature-card__title {
+  font-size: 28rpx;
+}
+
+.feature-card__icon {
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+}
+
+.feature-card__title {
+  font-size: 34rpx;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.feature-card__desc {
+  font-size: 22rpx;
+  opacity: 0.85;
+  display: block;
+  line-height: 1.4;
+}
+
+.feature-card__btn {
+  display: inline-block;
+  padding: 12rpx 32rpx;
+  border-radius: 32rpx;
+  font-size: 24rpx;
+  margin-top: 20rpx;
+  align-self: flex-start;
+}
+
+.feature-card:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}

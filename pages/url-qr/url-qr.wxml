@@ -1,0 +1,11 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">网址链接</text>
+    <input class="input-box" placeholder="https://example.com" placeholder-class="input-placeholder" model:value="{{url}}" />
+
+    <text class="input-label">标题</text>
+    <input class="input-box" placeholder="网址二维码标题" placeholder-class="input-placeholder" model:value="{{title}}" />
+  </view>
+
+  <button class="btn-primary" bindtap="generate">生成网址二维码</button>
+</view>

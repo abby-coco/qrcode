@@ -1,0 +1,63 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">前景色</text>
+    <view class="color-row">
+      <view
+        class="color-dot {{foregroundColor === item ? 'color-dot--active' : ''}}"
+        wx:for="{{presetColors}}"
+        wx:key="*this"
+        style="background: {{item}};"
+        bindtap="selectPresetColor"
+        data-color="{{item}}"
+      />
+      <picker mode="color" value="{{foregroundColor}}" bindchange="onFgColorChange">
+        <view class="color-picker-btn">自定义</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="section-title">背景色</text>
+    <picker mode="color" value="{{backgroundColor}}" bindchange="onBgColorChange">
+      <view class="color-preview" style="background: {{backgroundColor}};">{{backgroundColor}}</view>
+    </picker>
+  </view>
+
+  <view class="card">
+    <text class="section-title">中心 Logo</text>
+    <view class="logo-section" wx:if="{{logoPath}}">
+      <image class="logo-preview" src="{{logoPath}}" mode="aspectFill" />
+      <button class="btn-secondary" bindtap="removeLogo">移除 Logo</button>
+    </view>
+    <button class="btn-outline" wx:else bindtap="chooseLogo">选择中心图片</button>
+
+    <text class="input-label" style="margin-top:24rpx;">Logo 形状</text>
+    <view class="option-row">
+      <view
+        class="option-chip {{logoShape === item.value ? 'option-chip--active' : ''}}"
+        wx:for="{{shapeOptions}}"
+        wx:key="value"
+        bindtap="selectShape"
+        data-value="{{item.value}}"
+      >{{item.label}}</view>
+    </view>
+
+    <text class="input-label">Logo 大小 ({{logoSize}}%)</text>
+    <slider min="10" max="30" value="{{logoSize}}" bindchange="onLogoSizeChange" activeColor="#7c6cf0" />
+  </view>
+
+  <view class="card">
+    <text class="section-title">纠错级别</text>
+    <view class="option-row">
+      <view
+        class="option-chip {{errorCorrectionLevel === item.value ? 'option-chip--active' : ''}}"
+        wx:for="{{levelOptions}}"
+        wx:key="value"
+        bindtap="selectLevel"
+        data-value="{{item.value}}"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <button class="btn-primary" bindtap="saveConfig">保存美化设置</button>
+</view>

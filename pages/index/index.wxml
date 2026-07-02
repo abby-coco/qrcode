@@ -1,0 +1,75 @@
+<view class="container">
+  <!-- 顶部主功能区 -->
+  <view class="hero-section">
+    <view class="hero-left" bindtap="goCombine">
+      <view class="hero-card hero-card--primary">
+        <view class="hero-card__glow"></view>
+        <image class="hero-card__icon" src="/images/icon-combine.png" mode="aspectFit" />
+        <text class="hero-card__title">创建组合二维码</text>
+        <text class="hero-card__desc">支持图片、视频、音频、文字和文件组合</text>
+        <view class="hero-card__btn">立即体验</view>
+      </view>
+    </view>
+    <view class="hero-right">
+      <view class="hero-card hero-card--orange" bindtap="goGenerate" data-type="image">
+        <text class="hero-card__small-icon">🖼️</text>
+        <text class="hero-card__small-title">图片二维码</text>
+      </view>
+      <view class="hero-card hero-card--purple" bindtap="goGenerate" data-type="video">
+        <text class="hero-card__small-icon">🎬</text>
+        <text class="hero-card__small-title">视频二维码</text>
+      </view>
+      <view class="hero-card hero-card--blue" bindtap="goGenerate" data-type="url">
+        <text class="hero-card__small-icon">🔗</text>
+        <text class="hero-card__small-title">网址二维码</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 静态码快速生成 -->
+  <view class="card static-section">
+    <view class="section-title-row">
+      <text class="section-title">静态码</text>
+      <view class="decode-link" bindtap="goDecode">
+        <text>🔍 解码解析</text>
+      </view>
+    </view>
+    <view class="static-input-wrap" bindtap="goGenerate">
+      <text class="static-placeholder">请输入文本或网址，快速生成二维码</text>
+    </view>
+    <button class="btn-primary" bindtap="goGenerate">生成二维码</button>
+  </view>
+
+  <!-- 快捷工具 一行四个 -->
+  <view class="card">
+    <text class="section-title">快捷工具</text>
+    <view class="quick-grid">
+      <view class="quick-grid__item" wx:for="{{quickEntries}}" wx:key="label">
+        <quick-entry
+          style="width:100%;"
+          icon="{{item.icon}}"
+          label="{{item.label}}"
+          bgColor="{{item.bgColor}}"
+          url="{{item.url}}"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 常用模板 -->
+  <view class="card">
+    <view class="section-title-row">
+      <text class="section-title">常用模板</text>
+      <text class="section-more" bindtap="goTemplates">查看全部 ›</text>
+    </view>
+    <template-item
+      wx:for="{{templates}}"
+      wx:key="type"
+      icon="{{item.icon}}"
+      title="{{item.title}}"
+      desc="{{item.desc}}"
+      bgColor="{{item.bgColor}}"
+      type="{{item.type}}"
+    />
+  </view>
+</view>

@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="card">
+    <view class="template-header">
+      <text class="template-header__icon">{{config.icon}}</text>
+      <text class="template-header__title">{{config.title}}</text>
+    </view>
+
+    <block wx:for="{{config.fields}}" wx:key="key">
+      <text class="input-label">{{item.label}}{{item.required ? ' *' : ''}}</text>
+      <input
+        wx:if="{{item.key !== 'content' && item.key !== 'note'}}"
+        class="input-box"
+        placeholder="请输入{{item.label}}"
+        placeholder-class="input-placeholder"
+        data-key="{{item.key}}"
+        value="{{formData[item.key]}}"
+        bindinput="onInput"
+      />
+      <textarea
+        wx:else
+        class="textarea-box"
+        placeholder="请输入{{item.label}}"
+        placeholder-class="input-placeholder"
+        data-key="{{item.key}}"
+        value="{{formData[item.key]}}"
+        bindinput="onInput"
+      />
+    </block>
+  </view>
+
+  <button class="btn-primary" bindtap="generate">生成模板二维码</button>
+</view>

@@ -1,0 +1,61 @@
+.category-bar {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.category-chip {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  background: #ffffff;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.category-chip--active {
+  background: #7c6cf0;
+  color: #ffffff;
+}
+
+.quote-item {
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.quote-item:last-child {
+  border-bottom: none;
+}
+
+.quote-item__text {
+  font-size: 30rpx;
+  line-height: 1.6;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.quote-item__author {
+  font-size: 24rpx;
+  color: #999999;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.quote-item__actions {
+  display: flex;
+  gap: 24rpx;
+}
+
+.quote-action {
+  font-size: 26rpx;
+  color: #666666;
+  padding: 8rpx 24rpx;
+  background: #f5f6fa;
+  border-radius: 24rpx;
+}
+
+.quote-action--primary {
+  background: #f0edff;
+  color: #7c6cf0;
+}

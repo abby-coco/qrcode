@@ -1,0 +1,49 @@
+<view class="container">
+  <view class="card qr-card">
+    <text class="qr-title">{{title}}</text>
+    <view class="qr-wrap">
+      <image
+        wx:if="{{isWxacode && wxacodeUrl}}"
+        class="wxacode-image"
+        src="{{wxacodeUrl}}"
+        mode="aspectFit"
+        show-menu-by-longpress
+      />
+      <canvas
+        wx:elif="{{showCanvas}}"
+        canvas-id="qrCanvas"
+        class="qr-canvas"
+        style="width: {{canvasSize}}px; height: {{canvasSize}}px;"
+      />
+    </view>
+    <text class="qr-hint">长按图片可保存或分享</text>
+    <view class="cloud-tip" wx:if="{{isCloudLink}}">
+      <text class="cloud-tip__badge">☁ 云链接</text>
+      <text class="cloud-tip__text">纯文本已转为网页链接，微信扫码可正常查看</text>
+    </view>
+  </view>
+
+  <view class="card raw-card" wx:if="{{rawPreview && isCloudLink}}">
+    <text class="raw-card__label">内容预览</text>
+    <text class="raw-card__content">{{rawPreview}}</text>
+  </view>
+
+  <view class="card action-grid">
+    <view class="action-item" bindtap="goBeautify">
+      <text class="action-item__icon">🎨</text>
+      <text class="action-item__label">美化样式</text>
+    </view>
+    <view class="action-item" bindtap="saveImage">
+      <text class="action-item__icon">💾</text>
+      <text class="action-item__label">保存相册</text>
+    </view>
+    <view class="action-item" bindtap="copyContent">
+      <text class="action-item__icon">📋</text>
+      <text class="action-item__label">复制原文</text>
+    </view>
+    <view class="action-item" bindtap="copyLink" wx:if="{{isCloudLink && !isWxacode}}">
+      <text class="action-item__icon">🔗</text>
+      <text class="action-item__label">复制链接</text>
+    </view>
+  </view>
+</view>

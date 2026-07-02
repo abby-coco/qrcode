@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">联系人信息</text>
+    <text class="tip">扫码可直接保存到通讯录 (vCard 格式)</text>
+
+    <text class="input-label">姓名 *</text>
+    <input class="input-box" placeholder="请输入姓名" placeholder-class="input-placeholder" model:value="{{name}}" />
+
+    <text class="input-label">手机号 *</text>
+    <input class="input-box" placeholder="请输入手机号" placeholder-class="input-placeholder" type="number" model:value="{{phone}}" />
+
+    <text class="input-label">邮箱</text>
+    <input class="input-box" placeholder="请输入邮箱" placeholder-class="input-placeholder" model:value="{{email}}" />
+
+    <text class="input-label">公司</text>
+    <input class="input-box" placeholder="请输入公司名称" placeholder-class="input-placeholder" model:value="{{company}}" />
+
+    <text class="input-label">职位</text>
+    <input class="input-box" placeholder="请输入职位" placeholder-class="input-placeholder" model:value="{{title}}" />
+
+    <text class="input-label">地址</text>
+    <input class="input-box" placeholder="请输入地址" placeholder-class="input-placeholder" model:value="{{address}}" />
+
+    <text class="input-label">网站</text>
+    <input class="input-box" placeholder="https://" placeholder-class="input-placeholder" model:value="{{website}}" />
+
+    <text class="input-label">备注</text>
+    <textarea class="textarea-box" placeholder="备注信息" placeholder-class="input-placeholder" model:value="{{note}}" />
+  </view>
+
+  <button class="btn-primary" bindtap="generate">生成名片二维码</button>
+</view>

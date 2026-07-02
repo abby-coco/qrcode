@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="card">
+    <view class="section-title-row">
+      <text class="section-title">视频二维码</text>
+      <view class="decode-link" bindtap="goDecode">🔍 视频解析</view>
+    </view>
+
+    <view class="preview-area" bindtap="chooseVideo">
+      <view wx:if="{{videoPath}}" class="video-selected">
+        <text class="preview-icon">🎬</text>
+        <text>视频已选择，点击更换</text>
+      </view>
+      <view wx:else class="preview-placeholder">
+        <text class="preview-icon">🎬</text>
+        <text>点击选择视频</text>
+      </view>
+    </view>
+
+    <text class="input-label">标题</text>
+    <input class="input-box" placeholder="视频二维码标题" placeholder-class="input-placeholder" model:value="{{title}}" />
+
+    <text class="input-label">模式</text>
+    <view class="option-row">
+      <view class="option-chip {{mode === 'single' ? 'option-chip--active' : ''}}" bindtap="selectMode" data-mode="single">单视频</view>
+      <view class="option-chip {{mode === 'multi' ? 'option-chip--active' : ''}}" bindtap="selectMode" data-mode="multi">多视频</view>
+    </view>
+  </view>
+
+  <button class="btn-primary" bindtap="generate">生成视频二维码</button>
+</view>

@@ -1,0 +1,37 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">合并标题</text>
+    <input class="input-box" placeholder="例如：店铺收款码" placeholder-class="input-placeholder" model:value="{{title}}" />
+  </view>
+
+  <view class="card">
+    <text class="section-title">添加收款码</text>
+    <view class="add-btns">
+      <button class="btn-secondary" bindtap="addWechatCode">💚 微信收款码</button>
+      <button class="btn-secondary" bindtap="addAlipayCode">💙 支付宝收款码</button>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{codes.length}}">
+    <text class="section-title">已添加 ({{codes.length}})</text>
+    <view class="code-list">
+      <view class="code-item" wx:for="{{codes}}" wx:key="id">
+        <image class="code-item__img" src="{{item.path}}" mode="aspectFill" />
+        <view class="code-item__info">
+          <text>{{item.icon}} {{item.label}}</text>
+        </view>
+        <text class="code-item__del" bindtap="removeCode" data-id="{{item.id}}">✕</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="section-title">排列方式</text>
+    <view class="option-row">
+      <view class="option-chip {{layout === 'vertical' ? 'option-chip--active' : ''}}" bindtap="selectLayout" data-layout="vertical">上下排列</view>
+      <view class="option-chip {{layout === 'horizontal' ? 'option-chip--active' : ''}}" bindtap="selectLayout" data-layout="horizontal">左右排列</view>
+    </view>
+  </view>
+
+  <button class="btn-primary" bindtap="generate">生成合并二维码</button>
+</view>

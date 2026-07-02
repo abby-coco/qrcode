@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">选择图片</text>
+    <view class="preview-area" bindtap="chooseImage">
+      <image wx:if="{{imagePath}}" class="preview-img" src="{{imagePath}}" mode="aspectFit" />
+      <view wx:else class="preview-placeholder">
+        <text class="preview-icon">🖼️</text>
+        <text>点击选择图片</text>
+      </view>
+    </view>
+
+    <text class="input-label">标题</text>
+    <input class="input-box" placeholder="图片二维码标题" placeholder-class="input-placeholder" model:value="{{title}}" />
+    <view class="cloud-notice" style="margin-top:16rpx;">
+      <text>💡 图片将上传云存储并生成链接二维码，扫码可查看</text>
+    </view>
+  </view>
+
+  <button class="btn-primary" bindtap="generate">{{generating ? '生成中...' : '生成图片二维码'}}</button>
+</view>

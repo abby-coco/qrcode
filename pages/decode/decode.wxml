@@ -1,0 +1,18 @@
+<view class="container">
+  <view class="card scan-area">
+    <view class="scan-icon">📷</view>
+    <text class="scan-title">扫描二维码</text>
+    <text class="scan-desc">支持相机扫码或从相册识别</text>
+    <button class="btn-primary" bindtap="scanCode">扫码解析</button>
+    <button class="btn-secondary" style="margin-top:16rpx;" bindtap="chooseImage">从相册识别</button>
+  </view>
+
+  <view class="card" wx:if="{{result}}">
+    <text class="section-title">解析结果</text>
+    <view class="result-box">{{result}}</view>
+    <view class="result-actions">
+      <button class="btn-secondary" bindtap="copyResult">复制内容</button>
+      <button class="btn-outline" bindtap="openUrl" wx:if="{{result.indexOf('http') === 0}}">打开链接</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,12 @@
+<view class="launch">
+  <view class="launch__brand">
+    <view class="launch__logo-wrap">
+      <image class="launch__logo" src="/images/icon-combine.png" mode="aspectFit" />
+    </view>
+    <text class="launch__name">二维码工具</text>
+  </view>
+  <view class="launch__loading">
+    <view class="launch__spinner"></view>
+    <text class="launch__text">页面加载中...</text>
+  </view>
+</view>

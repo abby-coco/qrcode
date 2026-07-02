@@ -1,0 +1,65 @@
+{
+  "pages": [
+    "pages/launch/launch",
+    "pages/index/index",
+    "pages/combine/combine",
+    "pages/generate/generate",
+    "pages/decode/decode",
+    "pages/image-qr/image-qr",
+    "pages/video-qr/video-qr",
+    "pages/url-qr/url-qr",
+    "pages/vcard/vcard",
+    "pages/wifi/wifi",
+    "pages/payment-merge/payment-merge",
+    "pages/address/address",
+    "pages/beautify/beautify",
+    "pages/quotes/quotes",
+    "pages/history/history",
+    "pages/templates/templates",
+    "pages/template-form/template-form",
+    "pages/result/result",
+    "pages/view/view"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "二维码工具",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f6fa",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#7c6cf0",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/templates/templates",
+        "text": "模板",
+        "iconPath": "images/tab-template.png",
+        "selectedIconPath": "images/tab-template-active.png"
+      },
+      {
+        "pagePath": "pages/history/history",
+        "text": "记录",
+        "iconPath": "images/tab-history.png",
+        "selectedIconPath": "images/tab-history-active.png"
+      },
+      {
+        "pagePath": "pages/quotes/quotes",
+        "text": "语录",
+        "iconPath": "images/tab-quotes.png",
+        "selectedIconPath": "images/tab-quotes-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

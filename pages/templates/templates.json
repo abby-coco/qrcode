@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "表单模板",
+  "usingComponents": {
+    "template-item": "/components/template-item/template-item"
+  }
+}

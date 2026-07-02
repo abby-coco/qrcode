@@ -1,0 +1,10 @@
+<view class="feature-card feature-card--{{size}}" style="background: {{bgColor}};" bindtap="onTap">
+  <view class="feature-card__icon">{{icon}}</view>
+  <view class="feature-card__content">
+    <text class="feature-card__title" style="color: {{titleColor}};">{{title}}</text>
+    <text class="feature-card__desc" style="color: {{descColor}};" wx:if="{{desc}}">{{desc}}</text>
+  </view>
+  <view class="feature-card__btn" wx:if="{{btnText}}" style="background: {{btnBg}}; color: {{btnColor}};">
+    {{btnText}}
+  </view>
+</view>

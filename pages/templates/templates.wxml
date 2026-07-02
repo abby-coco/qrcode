@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">常用模板</text>
+    <text class="template-desc">选择模板快速生成表单二维码，扫码即可填写</text>
+    <template-item
+      wx:for="{{templates}}"
+      wx:key="type"
+      icon="{{item.icon}}"
+      title="{{item.title}}"
+      desc="{{item.desc}}"
+      bgColor="{{item.bgColor}}"
+      type="{{item.type}}"
+    />
+  </view>
+</view>

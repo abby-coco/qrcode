@@ -1,0 +1,65 @@
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.color-dot {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  border: 4rpx solid transparent;
+}
+
+.color-dot--active {
+  border-color: #7c6cf0;
+  box-shadow: 0 0 0 4rpx rgba(124, 108, 240, 0.3);
+}
+
+.color-picker-btn {
+  padding: 12rpx 24rpx;
+  background: #f5f6fa;
+  border-radius: 32rpx;
+  font-size: 24rpx;
+  color: #666666;
+}
+
+.color-preview {
+  padding: 20rpx;
+  border-radius: 16rpx;
+  text-align: center;
+  font-size: 26rpx;
+  border: 1rpx solid #eeeeee;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.logo-preview {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+}
+
+.option-row {
+  display: flex;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.option-chip {
+  padding: 12rpx 28rpx;
+  border-radius: 32rpx;
+  background: #f5f6fa;
+  font-size: 26rpx;
+  color: #666666;
+}
+
+.option-chip--active {
+  background: #f0edff;
+  color: #7c6cf0;
+  font-weight: 500;
+}

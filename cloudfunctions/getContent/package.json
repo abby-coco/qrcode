@@ -1,0 +1,9 @@
+{
+  "name": "getContent",
+  "version": "1.0.0",
+  "description": "获取二维码云内容，支持 HTTP 访问展示网页",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

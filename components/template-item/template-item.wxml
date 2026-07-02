@@ -1,0 +1,10 @@
+<view class="template-item" bindtap="onTap">
+  <view class="template-item__thumb" style="background: {{bgColor}};">
+    <text class="template-item__emoji">{{icon}}</text>
+  </view>
+  <view class="template-item__info">
+    <text class="template-item__title">{{title}}</text>
+    <text class="template-item__desc">{{desc}}</text>
+  </view>
+  <text class="template-item__arrow">›</text>
+</view>

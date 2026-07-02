@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "二维码工具",
+  "usingComponents": {
+    "feature-card": "/components/feature-card/feature-card",
+    "quick-entry": "/components/quick-entry/quick-entry",
+    "template-item": "/components/template-item/template-item"
+  }
+}

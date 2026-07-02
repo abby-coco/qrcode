@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="error" wx:elif="{{error}}">
+    <text class="error__icon">😕</text>
+    <text class="error__text">{{error}}</text>
+  </view>
+
+  <view class="card" wx:else>
+    <text class="view-title">{{title}}</text>
+    <view class="view-content">{{content}}</view>
+    <button class="btn-primary" bindtap="copyContent">复制内容</button>
+  </view>
+</view>

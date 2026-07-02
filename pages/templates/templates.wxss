@@ -1,0 +1,6 @@
+.template-desc {
+  font-size: 26rpx;
+  color: #999999;
+  display: block;
+  margin-bottom: 16rpx;
+}

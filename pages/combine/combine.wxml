@@ -1,0 +1,51 @@
+<view class="container">
+  <view class="card">
+    <text class="input-label">组合标题</text>
+    <input class="input-box" placeholder="给组合二维码起个名字" placeholder-class="input-placeholder" model:value="{{title}}" />
+  </view>
+
+  <view class="card">
+    <text class="section-title">选择内容类型</text>
+    <view class="type-grid">
+      <view
+        class="type-item"
+        wx:for="{{mediaTypes}}"
+        wx:key="type"
+        style="background: {{item.color}};"
+        bindtap="addItem"
+        data-type="{{item.type}}"
+      >
+        <text class="type-item__icon">{{item.icon}}</text>
+        <text class="type-item__label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{items.length}}">
+    <text class="section-title">已选内容 ({{items.length}})</text>
+    <view class="item-list">
+      <view class="item-row" wx:for="{{items}}" wx:key="id" wx:for-index="idx">
+        <view class="item-row__left">
+          <text class="item-row__icon">{{item.icon}}</text>
+          <view class="item-row__info">
+            <text class="item-row__name">{{item.name}}</text>
+            <text class="item-row__preview" wx:if="{{item.type === 'text'}}">{{item.content}}</text>
+            <text class="item-row__preview" wx:else>已选择{{item.label}}</text>
+          </view>
+        </view>
+        <view class="item-row__actions">
+          <text class="action-btn" bindtap="moveUp" data-index="{{idx}}" wx:if="{{idx > 0}}">↑</text>
+          <text class="action-btn action-btn--del" bindtap="removeItem" data-id="{{item.id}}">✕</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card empty-hint" wx:else>
+    <text class="empty-hint__text">👆 点击上方类型添加内容，可自由组合多种媒体</text>
+  </view>
+
+  <view class="footer-actions">
+    <button class="btn-primary" bindtap="generate" disabled="{{!items.length}}">生成组合二维码</button>
+  </view>
+</view>

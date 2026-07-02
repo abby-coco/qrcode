@@ -1,0 +1,30 @@
+<view class="container">
+  <view class="card">
+    <text class="section-title">WiFi 信息</text>
+    <text class="tip">扫码即可自动连接 WiFi</text>
+
+    <text class="input-label">网络名称 (SSID) *</text>
+    <input class="input-box" placeholder="WiFi 名称" placeholder-class="input-placeholder" model:value="{{ssid}}" />
+
+    <text class="input-label">密码</text>
+    <input class="input-box" placeholder="WiFi 密码" placeholder-class="input-placeholder" password model:value="{{password}}" />
+
+    <text class="input-label">加密方式</text>
+    <view class="option-row">
+      <view
+        class="option-chip {{encryption === item ? 'option-chip--active' : ''}}"
+        wx:for="{{encryptions}}"
+        wx:key="*this"
+        bindtap="selectEncryption"
+        data-value="{{item}}"
+      >{{item}}</view>
+    </view>
+
+    <view class="switch-row">
+      <text>隐藏网络</text>
+      <switch checked="{{hidden}}" bindchange="toggleHidden" color="#7c6cf0" />
+    </view>
+  </view>
+
+  <button class="btn-primary" bindtap="generate">生成 WiFi 二维码</button>
+</view>

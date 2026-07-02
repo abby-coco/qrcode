@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="card">
+    <view class="section-title-row">
+      <text class="section-title">静态码</text>
+      <view class="decode-link" bindtap="goDecode">🔍 解码美化</view>
+    </view>
+    <textarea
+      class="textarea-box"
+      placeholder="请输入文本或网址"
+      placeholder-class="input-placeholder"
+      maxlength="{{maxLength}}"
+      model:value="{{content}}"
+      auto-height
+    />
+    <view class="char-count">{{content.length}}/{{maxLength}}</view>
+    <view class="cloud-notice">
+      <text>💡 纯文本将上传云端并生成 HTTPS 网页链接，微信扫码可查看内容（需配置 HTTP 访问服务）</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="btn-primary tap-btn" bindtap="generate">
+      {{generating ? '生成中...' : '生成二维码'}}
+    </view>
+    <view class="btn-secondary tap-btn" style="margin-top:16rpx;" bindtap="goBeautify">美化设置</view>
+  </view>
+</view>

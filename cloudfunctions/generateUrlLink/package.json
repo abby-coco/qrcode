@@ -1,0 +1,9 @@
+{
+  "name": "generateUrlLink",
+  "version": "1.0.0",
+  "description": "生成 URL Link，免费版替代 HTTP 访问",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}
