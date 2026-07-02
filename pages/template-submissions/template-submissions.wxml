@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="card summary-card">
+    <text class="summary-title">{{title}}</text>
+    <text class="summary-count">已收集 {{total}} 条</text>
+    <button class="btn-secondary" wx:if="{{total}}" bindtap="copyAll">复制全部数据</button>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="card" wx:elif="{{error}}">
+    <text class="error-text">{{error}}</text>
+  </view>
+
+  <view wx:elif="{{submissions.length}}">
+    <view class="card submission-card" wx:for="{{submissions}}" wx:key="index">
+      <view class="submission-head">
+        <text class="submission-index">#{{item.index}}</text>
+        <text class="submission-time">{{item.timeStr}}</text>
+      </view>
+      <view class="submission-row" wx:for="{{item.rows}}" wx:key="label" wx:for-item="row">
+        <text class="submission-label">{{row.label}}</text>
+        <text class="submission-value">{{row.value}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">📭</text>
+    <text>还没有人提交</text>
+    <text class="empty-tip">分享二维码给他人扫码填写后，数据会显示在这里</text>
+  </view>
+</view>

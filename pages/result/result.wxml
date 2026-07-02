@@ -29,6 +29,10 @@
   </view>
 
   <view class="card action-grid">
+    <view class="action-item" bindtap="goSubmissions" wx:if="{{type === 'template' && cloudId}}">
+      <text class="action-item__icon">📊</text>
+      <text class="action-item__label">查看汇总</text>
+    </view>
     <view class="action-item" bindtap="goBeautify">
       <text class="action-item__icon">🎨</text>
       <text class="action-item__label">美化样式</text>

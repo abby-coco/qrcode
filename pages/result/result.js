@@ -1,4 +1,6 @@
 const { drawQRCode, saveQRCodeToAlbum } = require('../../utils/qrcode')
+const cloud = require('../../utils/cloud')
+const { buildContentPreview } = require('../../utils/util')
 
 Page({
   data: {
@@ -7,6 +9,8 @@ Page({
     rawContent: '',
     title: '',
     type: 'generate',
+    cloudId: '',
+    templateType: '',
     isCloudLink: false,
     linkType: '',
     isWxacode: false,
@@ -14,25 +18,6 @@ Page({
     canvasSize: 280,
     showCanvas: false,
     rawPreview: ''
-  },
-
-  buildRawPreview(rawContent) {
-    if (!rawContent) return ''
-    try {
-      const data = JSON.parse(rawContent)
-      if (data.type === 'combine' && Array.isArray(data.items)) {
-        const labels = { image: '图片', video: '视频', audio: '音频', file: '文件', text: '文字' }
-        const parts = data.items.map((item) => labels[item.type] || item.type)
-        return `组合内容：${parts.join('、')}`
-      }
-      if (data.type === 'image') return `图片：${data.title || '图片二维码'}`
-      if (data.type === 'video') return `视频：${data.title || '视频二维码'}`
-      if (data.type === 'payment-merge') return `收款码合并：${data.codes.length} 个收款码`
-    } catch (e) {
-      // plain text
-    }
-    if (rawContent.includes('BEGIN:VCARD')) return '电子名片'
-    return rawContent
   },
 
   onLoad(options) {
@@ -57,7 +42,21 @@ Page({
       if (!rawContent) rawContent = qrData
     }
 
-    const rawPreview = this.buildRawPreview(rawContent)
+    let cloudId = pending.cloudId || cloud.extractCloudId(qrData)
+    let templateType = pending.templateType || ''
+
+    if (!templateType && rawContent) {
+      try {
+        const parsed = JSON.parse(rawContent)
+        if (parsed.type === 'template-form') {
+          templateType = parsed.templateType || ''
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    const rawPreview = buildContentPreview(rawContent, { templateType, qrData })
 
     this.setData({
       mode: isWxacode ? 'wxacode' : 'qrcode',
@@ -66,6 +65,8 @@ Page({
       type,
       rawContent,
       rawPreview,
+      cloudId,
+      templateType,
       isCloudLink,
       linkType,
       isWxacode,
@@ -178,6 +179,17 @@ Page({
     wx.setClipboardData({
       data: this.data.qrData,
       success: () => wx.showToast({ title: '链接已复制', icon: 'success' })
+    })
+  },
+
+  goSubmissions() {
+    const { cloudId, title, templateType } = this.data
+    if (!cloudId) {
+      wx.showToast({ title: '无法查看汇总', icon: 'none' })
+      return
+    }
+    wx.navigateTo({
+      url: `/pages/template-submissions/template-submissions?templateId=${cloudId}&title=${encodeURIComponent(title)}&templateType=${templateType || ''}`
     })
   }
 })

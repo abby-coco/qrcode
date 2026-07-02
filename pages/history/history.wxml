@@ -17,7 +17,7 @@
           <text class="history-item__time">{{item.timeStr}}</text>
         </view>
         <text class="history-item__title">{{item.title}}</text>
-        <text class="history-item__preview">{{item.preview}}</text>
+        <text class="history-item__preview" wx:if="{{item.preview}}">{{item.preview}}</text>
       </view>
       <text class="history-item__del" bindtap="deleteItem" data-id="{{item.id}}">删除</text>
     </view>

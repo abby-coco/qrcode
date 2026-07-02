@@ -17,6 +17,7 @@
     "pages/history/history",
     "pages/templates/templates",
     "pages/template-form/template-form",
+    "pages/template-submissions/template-submissions",
     "pages/result/result",
     "pages/view/view"
   ],

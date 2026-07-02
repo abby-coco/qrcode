@@ -1,5 +1,6 @@
 const { getHistory, deleteRecord, clearHistory } = require('../../utils/storage')
-const { formatTime, truncate, TYPE_LABELS } = require('../../utils/util')
+const { formatTime, TYPE_LABELS, buildContentPreview } = require('../../utils/util')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -9,7 +10,8 @@ Page({
       { value: 'all', label: '全部' },
       { value: 'generate', label: '生成' },
       { value: 'decode', label: '解析' },
-      { value: 'combine', label: '组合' }
+      { value: 'combine', label: '组合' },
+      { value: 'template', label: '模板' }
     ]
   },
 
@@ -27,7 +29,10 @@ Page({
       ...item,
       typeLabel: TYPE_LABELS[item.type] || item.type,
       timeStr: formatTime(item.createTime),
-      preview: truncate(item.content, 40)
+      preview: buildContentPreview(item.content, {
+        templateType: item.templateType,
+        qrData: item.qrData
+      })
     }))
     this.setData({ history })
   },
@@ -39,11 +44,21 @@ Page({
   viewItem(e) {
     const item = this.data.history[e.currentTarget.dataset.index]
     const app = getApp()
+    let templateType = item.templateType || ''
+    if (!templateType && item.content) {
+      try {
+        const parsed = JSON.parse(item.content)
+        if (parsed.type === 'template-form') templateType = parsed.templateType || ''
+      } catch (err) {
+        // ignore
+      }
+    }
     app.globalData.pendingResult = {
       qrData: item.qrData || item.content,
       rawContent: item.content || '',
       isCloudLink: /^https?:\/\//i.test(item.qrData || ''),
-      cloudId: ''
+      cloudId: item.cloudId || cloud.extractCloudId(item.qrData || ''),
+      templateType
     }
     const isCloud = app.globalData.pendingResult.isCloudLink
     wx.navigateTo({

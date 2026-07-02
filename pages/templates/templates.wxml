@@ -1,7 +1,7 @@
 <view class="container">
   <view class="card">
     <text class="section-title">常用模板</text>
-    <text class="template-desc">选择模板快速生成表单二维码，扫码即可填写</text>
+    <text class="template-desc">选择模板生成表单二维码，他人扫码填写，你可在小程序查看汇总</text>
     <template-item
       wx:for="{{templates}}"
       wx:key="type"

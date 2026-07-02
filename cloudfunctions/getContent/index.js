@@ -283,6 +283,32 @@ function wrapPageHtml(title, bodyHtml, badgeLabel) {
       color: #999;
       text-align: center;
     }
+    .form-desc {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      background: #f8f9fc;
+      border-radius: 12px;
+    }
+    .submit-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-field { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-size: 14px; color: #666; }
+    .form-input, .form-textarea {
+      width: 100%; box-sizing: border-box; border: 1px solid #e8e8ef;
+      border-radius: 12px; padding: 12px 14px; font-size: 16px; background: #fff; color: #333;
+    }
+    .form-textarea { min-height: 96px; resize: vertical; }
+    .submit-btn {
+      margin-top: 8px; border: none; border-radius: 999px; padding: 14px 0;
+      font-size: 16px; font-weight: 600; color: #fff;
+      background: linear-gradient(135deg, #7c6cf0, #a78bfa);
+    }
+    .form-msg { text-align: center; font-size: 14px; color: #888; min-height: 20px; }
+    .form-msg--error { color: #ef4444; }
+    .success-icon { font-size: 48px; text-align: center; margin: 12px 0; }
+    .success-text { text-align: center; color: #666; line-height: 1.6; font-size: 16px; }
     .footer {
       text-align: center;
       margin-top: 24px;
@@ -360,9 +386,192 @@ async function resolveCombineItems(items) {
   }))
 }
 
+function parseTemplateForm(content) {
+  try {
+    const data = typeof content === 'string' ? JSON.parse(content) : content
+    if (data && data.type === 'template-form' && Array.isArray(data.fields)) {
+      return data
+    }
+  } catch (e) {
+    // not template form
+  }
+  return null
+}
+
+function parsePostBody(event) {
+  let body = event.body || ''
+  if (event.isBase64Encoded && body) {
+    body = Buffer.from(body, 'base64').toString('utf8')
+  }
+  if (!body) return {}
+  try {
+    return JSON.parse(body)
+  } catch (e) {
+    const params = {}
+    body.split('&').forEach((pair) => {
+      const idx = pair.indexOf('=')
+      if (idx === -1) return
+      const key = decodeURIComponent(pair.slice(0, idx).replace(/\+/g, ' '))
+      const value = decodeURIComponent(pair.slice(idx + 1).replace(/\+/g, ' '))
+      params[key] = value
+    })
+    return params
+  }
+}
+
+function buildTemplateFormHtml(templateId, templateData, docTitle, errorMsg) {
+  const title = escapeHtml(templateData.title || docTitle || '表单填写')
+  const desc = templateData.description
+    ? `<p class="form-desc">${escapeHtml(templateData.description)}</p>`
+    : ''
+  const errorHtml = errorMsg
+    ? `<p class="form-msg form-msg--error">${escapeHtml(errorMsg)}</p>`
+    : ''
+  const fieldsHtml = templateData.fields.map((field) => {
+    const label = escapeHtml(field.label || field.key)
+    const required = field.required ? ' required' : ''
+    const name = escapeAttr(field.key)
+    if (field.inputType === 'textarea') {
+      return `<label class="form-field"><span class="form-label">${label}${field.required ? ' *' : ''}</span><textarea class="form-textarea" name="${name}"${required} placeholder="请输入${label}"></textarea></label>`
+    }
+    const inputType = field.key === 'phone' ? 'tel' : field.key === 'email' ? 'email' : 'text'
+    return `<label class="form-field"><span class="form-label">${label}${field.required ? ' *' : ''}</span><input class="form-input" type="${inputType}" name="${name}"${required} placeholder="请输入${label}"/></label>`
+  }).join('')
+
+  const bodyHtml = `${desc}${errorHtml}<form class="submit-form" method="POST" action="?id=${escapeAttr(templateId)}">
+<input type="hidden" name="action" value="submit"/>
+<input type="hidden" name="templateId" value="${escapeAttr(templateId)}"/>
+${fieldsHtml}
+<button type="submit" class="submit-btn">提交</button>
+</form>`
+
+  return wrapPageHtml(title, bodyHtml, '表单填写')
+}
+
+function buildSubmitSuccessHtml(title) {
+  const safeTitle = escapeHtml(title || '表单')
+  return wrapPageHtml('提交成功', `<div class="success-icon">✅</div><p class="success-text">${safeTitle} 已提交成功<br/>感谢你的填写！</p>`, '提交成功')
+}
+
+function extractSubmitData(payload, templateData) {
+  if (payload.data && typeof payload.data === 'object') {
+    return payload.data
+  }
+
+  const submitData = {}
+  const reserved = { action: 1, templateId: 1, data: 1, id: 1 }
+  Object.keys(payload || {}).forEach((key) => {
+    if (!reserved[key]) submitData[key] = payload[key]
+  })
+
+  if (templateData && Array.isArray(templateData.fields)) {
+    templateData.fields.forEach((field) => {
+      if (payload[field.key] !== undefined && submitData[field.key] === undefined) {
+        submitData[field.key] = payload[field.key]
+      }
+    })
+  }
+
+  return submitData
+}
+
+function getHttpId(event, payload) {
+  return (event.queryStringParameters && event.queryStringParameters.id)
+    || payload.templateId
+    || payload.id
+    || event.id
+    || ''
+}
+
+function isHttpPost(event) {
+  return String(event.httpMethod || '').toUpperCase() === 'POST'
+}
+
+async function handleTemplateSubmit(templateId, payload) {
+  const doc = await db.collection('qr_contents').doc(templateId).get()
+  const templateData = parseTemplateForm(doc.data.content)
+  if (!templateData) {
+    return { success: false, errMsg: '模板不存在或已失效' }
+  }
+
+  const submitData = extractSubmitData(payload, templateData)
+  for (const field of templateData.fields) {
+    if (field.required && !String(submitData[field.key] || '').trim()) {
+      return { success: false, errMsg: `请填写${field.label}`, templateData }
+    }
+  }
+
+  try {
+    await db.collection('qr_submissions').add({
+      data: {
+        templateId,
+        templateType: templateData.templateType || '',
+        templateTitle: templateData.title || doc.data.title || '',
+        data: submitData,
+        submitTime: db.serverDate()
+      }
+    })
+  } catch (err) {
+    const errMsg = err.message || err.errMsg || '保存失败'
+    if (errMsg.includes('collection not exists') || errMsg.includes('DATABASE_COLLECTION_NOT_EXIST') || err.code === -502005) {
+      return {
+        success: false,
+        errMsg: '提交失败：请先在云开发控制台创建集合 qr_submissions',
+        templateData
+      }
+    }
+    throw err
+  }
+
+  return { success: true, title: templateData.title || doc.data.title || '表单' }
+}
+
 exports.main = async (event) => {
-  const id = event.id || (event.queryStringParameters && event.queryStringParameters.id)
   const isHttp = !!(event.httpMethod || event.queryStringParameters)
+  const postPayload = isHttpPost(event) ? parsePostBody(event) : {}
+  const id = getHttpId(event, postPayload)
+
+  if (isHttp && isHttpPost(event)) {
+    try {
+      if (postPayload.action === 'submit' && id) {
+        const result = await handleTemplateSubmit(id, postPayload)
+        if (!result.success) {
+          if (result.templateData) {
+            const doc = await db.collection('qr_contents').doc(id).get()
+            return {
+              statusCode: 400,
+              headers: { 'Content-Type': 'text/html; charset=utf-8' },
+              body: buildTemplateFormHtml(id, result.templateData, doc.data.title, result.errMsg)
+            }
+          }
+          return {
+            statusCode: 400,
+            headers: { 'Content-Type': 'text/html; charset=utf-8' },
+            body: `<h3>${escapeHtml(result.errMsg || '提交失败')}</h3>`
+          }
+        }
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          body: buildSubmitSuccessHtml(result.title)
+        }
+      }
+      if (!id) {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'text/html; charset=utf-8' },
+          body: '<h3>缺少内容 ID</h3>'
+        }
+      }
+    } catch (err) {
+      const errMsg = err.message || err.errMsg || '提交失败，请稍后重试'
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        body: `<h3>${escapeHtml(errMsg)}</h3>`
+      }
+    }
+  }
 
   if (!id) {
     if (isHttp) {
@@ -381,10 +590,13 @@ exports.main = async (event) => {
     const combineData = parseCombineContent(content)
     const paymentData = parsePaymentMergeContent(content)
     const vcardData = parseVCard(content)
+    const templateData = parseTemplateForm(content)
 
     if (isHttp) {
       let body
-      if (combineData) {
+      if (templateData) {
+        body = buildTemplateFormHtml(id, templateData, title)
+      } else if (combineData) {
         body = await buildCombineHtml(title, combineData)
       } else if (paymentData) {
         body = await buildPaymentMergeHtml(title, paymentData)

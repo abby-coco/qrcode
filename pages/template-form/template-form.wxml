@@ -4,28 +4,36 @@
       <text class="template-header__icon">{{config.icon}}</text>
       <text class="template-header__title">{{config.title}}</text>
     </view>
+    <text class="template-tip">填写活动/表单信息，生成二维码后他人扫码即可提交，你可在小程序内查看汇总。</text>
 
-    <block wx:for="{{config.fields}}" wx:key="key">
+    <block wx:for="{{config.creatorFields}}" wx:key="key">
       <text class="input-label">{{item.label}}{{item.required ? ' *' : ''}}</text>
-      <input
-        wx:if="{{item.key !== 'content' && item.key !== 'note'}}"
-        class="input-box"
-        placeholder="请输入{{item.label}}"
+      <textarea
+        wx:if="{{item.inputType === 'textarea'}}"
+        class="textarea-box"
+        placeholder="{{item.placeholder || ('请输入' + item.label)}}"
         placeholder-class="input-placeholder"
         data-key="{{item.key}}"
         value="{{formData[item.key]}}"
         bindinput="onInput"
       />
-      <textarea
+      <input
         wx:else
-        class="textarea-box"
-        placeholder="请输入{{item.label}}"
+        class="input-box"
+        placeholder="{{item.placeholder || ('请输入' + item.label)}}"
         placeholder-class="input-placeholder"
         data-key="{{item.key}}"
         value="{{formData[item.key]}}"
         bindinput="onInput"
       />
     </block>
+  </view>
+
+  <view class="card respondent-preview">
+    <text class="section-title">扫码者需填写</text>
+    <view class="respondent-tags">
+      <text class="respondent-tag" wx:for="{{config.respondentFields}}" wx:key="key">{{item.label}}</text>
+    </view>
   </view>
 
   <button class="btn-primary" bindtap="generate">生成模板二维码</button>

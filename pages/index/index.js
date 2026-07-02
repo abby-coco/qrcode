@@ -1,7 +1,7 @@
 Page({
   data: {
     quickEntries: [
-      { icon: '💰', label: '收款码合并', bgColor: '#fef3c7', url: '/pages/payment-merge/payment-merge' },
+      { icon: '🔍', label: '解码解析', bgColor: '#fef3c7', url: '/pages/decode/decode' },
       { icon: '👤', label: '名片二维码', bgColor: '#f0edff', url: '/pages/vcard/vcard' },
       { icon: '📶', label: 'WiFi二维码', bgColor: '#ecfdf5', url: '/pages/wifi/wifi' },
       { icon: '📋', label: '历史记录', bgColor: '#fce7f3', url: '/pages/history/history' }

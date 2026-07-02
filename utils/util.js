@@ -57,6 +57,42 @@ const TYPE_LABELS = {
   template: '模板码'
 }
 
+function buildContentPreview(content, extras = {}) {
+  const { templateType, qrData } = extras
+
+  if (!content) {
+    if (qrData && /^https?:\/\//i.test(qrData)) return truncate(qrData, 40)
+    return qrData || ''
+  }
+
+  try {
+    const data = JSON.parse(content)
+    if (data.type === 'combine' && Array.isArray(data.items)) {
+      const labels = { image: '图片', video: '视频', audio: '音频', file: '文件', text: '文字' }
+      const parts = data.items.map((item) => labels[item.type] || item.type)
+      return `组合内容：${parts.join('、')}`
+    }
+    if (data.type === 'image') return `图片：${data.title || '图片二维码'}`
+    if (data.type === 'video') return `视频：${data.title || '视频二维码'}`
+    if (data.type === 'payment-merge') {
+      const count = Array.isArray(data.codes) ? data.codes.length : 0
+      return `收款码合并：${count} 个收款码`
+    }
+    if (data.type === 'template-form') {
+      const { getTemplateConfig } = require('./template')
+      const config = getTemplateConfig(data.templateType || templateType)
+      if (data.description) return truncate(data.description, 40)
+      return `${config.title} · 扫码填写`
+    }
+  } catch (e) {
+    // plain text or other formats
+  }
+
+  if (content.includes('BEGIN:VCARD')) return '电子名片'
+  if (/^https?:\/\//i.test(content)) return truncate(content, 40)
+  return truncate(content, 40)
+}
+
 module.exports = {
   formatTime,
   truncate,
@@ -64,5 +100,6 @@ module.exports = {
   generateCombinePayload,
   generateAddressGeo,
   generateAddressUrl,
-  TYPE_LABELS
+  TYPE_LABELS,
+  buildContentPreview
 }

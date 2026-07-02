@@ -78,6 +78,19 @@ function buildContentUrl(id) {
   return `${base}?id=${encodeURIComponent(id)}`
 }
 
+function extractCloudId(qrData) {
+  const match = String(qrData || '').match(/[?&]id=([^&]+)/)
+  return match ? decodeURIComponent(match[1]) : ''
+}
+
+function getSubmissions(templateId) {
+  return callCloud('getSubmissions', { templateId })
+    .then((result) => {
+      if (result.success) return result
+      throw new Error(result.errMsg || '[getSubmissions] 获取失败')
+    })
+}
+
 function getCloudExt(item) {
   const path = item.filePath || item.content || item.name || ''
   const match = String(path).match(/\.([a-zA-Z0-9]+)$/)
@@ -267,7 +280,8 @@ function navigateToResult(options) {
     rawContent: options.rawContent || '',
     isCloudLink: !!options.isCloudLink,
     linkType: options.linkType || '',
-    cloudId: options.cloudId || ''
+    cloudId: options.cloudId || '',
+    templateType: options.templateType || ''
   }
 
   const title = encodeURIComponent(options.title || '二维码')
@@ -304,7 +318,9 @@ module.exports = {
   isHttpUrl,
   isCloudReady,
   buildContentUrl,
+  extractCloudId,
   saveContent,
+  getSubmissions,
   prepareQrData,
   prepareCombineForCloud,
   preparePaymentMergeForCloud,
