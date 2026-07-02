@@ -1210,6 +1210,67 @@ function utf16to8(str) {
   return out;
 }
 
+function clipRoundRect(ctx, x, y, w, h, r) {
+  var radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.arc(x + w - radius, y + radius, radius, -Math.PI / 2, 0);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.arc(x + w - radius, y + h - radius, radius, 0, Math.PI / 2);
+  ctx.lineTo(x + radius, y + h);
+  ctx.arc(x + radius, y + h - radius, radius, Math.PI / 2, Math.PI);
+  ctx.lineTo(x, y + radius);
+  ctx.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5);
+  ctx.closePath();
+}
+
+function drawCenterLogo(ctx, image, background) {
+  if (!image || !image.imageResource) return;
+
+  var dx = image.dx;
+  var dy = image.dy;
+  var dWidth = image.dWidth;
+  var dHeight = image.dHeight;
+  var shape = image.shape || 'square';
+  var bgColor = image.background || background || '#ffffff';
+  var pad = 4;
+
+  if (shape === 'circle') {
+    var cx = dx + dWidth / 2;
+    var cy = dy + dHeight / 2;
+    var r = dWidth / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r + pad, 0, 2 * Math.PI);
+    ctx.setFillStyle(bgColor);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.clip();
+    ctx.drawImage(image.imageResource, dx, dy, dWidth, dHeight);
+    ctx.restore();
+    return;
+  }
+
+  if (shape === 'round') {
+    var radius = dWidth * 0.18;
+    ctx.save();
+    clipRoundRect(ctx, dx - pad, dy - pad, dWidth + pad * 2, dHeight + pad * 2, radius + pad);
+    ctx.setFillStyle(bgColor);
+    ctx.fill();
+    clipRoundRect(ctx, dx, dy, dWidth, dHeight, radius);
+    ctx.clip();
+    ctx.drawImage(image.imageResource, dx, dy, dWidth, dHeight);
+    ctx.restore();
+    return;
+  }
+
+  ctx.setFillStyle(bgColor);
+  ctx.fillRect(dx - pad, dy - pad, dWidth + pad * 2, dHeight + pad * 2);
+  ctx.drawImage(image.imageResource, dx, dy, dWidth, dHeight);
+}
+
 function drawQrcode(options) {
   options = options || {};
   options = extend(true, {
@@ -1251,6 +1312,14 @@ function drawQrcode(options) {
       ctx = options._this ? wx.createCanvasContext && wx.createCanvasContext(options.canvasId, options._this) : wx.createCanvasContext && wx.createCanvasContext(options.canvasId);
     }
 
+    var canvasWidth = options.canvasWidth || options.width;
+    var canvasHeight = options.canvasHeight || options.height;
+    var offsetX = options.x || 0;
+    var offsetY = options.y || 0;
+
+    ctx.setFillStyle(options.background);
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
     // compute tileW/tileH based on options.width/options.height
     var tileW = options.width / qrcode.getModuleCount();
     var tileH = options.height / qrcode.getModuleCount();
@@ -1262,16 +1331,16 @@ function drawQrcode(options) {
         ctx.setFillStyle(style);
         var w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
         var h = Math.ceil((row + 1) * tileW) - Math.floor(row * tileW);
-        ctx.fillRect(Math.round(col * tileW) + options.x, Math.round(row * tileH) + options.y, w, h);
+        ctx.fillRect(Math.round(col * tileW) + offsetX, Math.round(row * tileH) + offsetY, w, h);
       }
     }
 
     if (options.image.imageResource) {
-      ctx.drawImage(options.image.imageResource, options.image.dx, options.image.dy, options.image.dWidth, options.image.dHeight);
+      drawCenterLogo(ctx, options.image, options.background);
     }
 
-    ctx.draw(false, function (e) {
-      options.callback && options.callback(e);
+    ctx.draw(false, function () {
+      options.callback && options.callback(null);
     });
   }
 }

@@ -29,7 +29,7 @@
   <!-- 静态码快速生成 -->
   <view class="card static-section">
     <view class="section-title-row">
-      <text class="section-title">静态码</text>
+      <text class="section-title">网址二维码</text>
       <view class="decode-link" bindtap="goDecode">
         <text>🔍 解码解析</text>
       </view>

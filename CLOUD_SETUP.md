@@ -83,5 +83,10 @@ A: 重新部署 saveContent，并确认已创建 `qr_contents` 集合
 **Q: 扫码 404**  
 A: 检查 `contentBaseUrl` 是否与控制台一致；`getContent` 是否已部署
 
+**Q: 扫码收款码合并/名片，页面显示 JSON 或纯文本**  
+A: 云端 **getContent 云函数未更新**。请在微信开发者工具中：  
+`cloudfunctions/getContent` → 右键 → **上传并部署：云端安装依赖**  
+部署成功后重新扫码（无需重新生成二维码），页面应显示收款码图片或名片信息。
+
 **Q: 输入网址还要走云端吗？**  
 A: 不会。以 `http://` 或 `https://` 开头的内容直接生成网址二维码。

@@ -1,4 +1,24 @@
 <view class="container">
+  <canvas
+    canvas-id="previewCanvas"
+    class="preview-canvas-hidden"
+    style="width: {{canvasSize}}px; height: {{canvasSize}}px;"
+  />
+
+  <view class="card preview-card" wx:if="{{qrData}}">
+    <text class="section-title">实时预览</text>
+    <view class="preview-wrap">
+      <image
+        wx:if="{{previewImage}}"
+        class="preview-image"
+        src="{{previewImage}}"
+        mode="aspectFit"
+      />
+      <view wx:else class="preview-placeholder">预览生成中...</view>
+    </view>
+    <text class="preview-hint">调整下方选项，二维码会立即更新</text>
+  </view>
+
   <view class="card">
     <text class="section-title">前景色</text>
     <view class="color-row">
@@ -10,17 +30,33 @@
         bindtap="selectPresetColor"
         data-color="{{item}}"
       />
-      <picker mode="color" value="{{foregroundColor}}" bindchange="onFgColorChange">
-        <view class="color-picker-btn">自定义</view>
-      </picker>
+    </view>
+    <view class="custom-color-row">
+      <view class="color-swatch" style="background: {{foregroundColor}};"></view>
+      <input
+        class="custom-color-input"
+        value="{{fgHexInput}}"
+        maxlength="7"
+        placeholder="#000000"
+        bindinput="onFgHexInput"
+        bindblur="applyFgHex"
+      />
     </view>
   </view>
 
   <view class="card">
     <text class="section-title">背景色</text>
-    <picker mode="color" value="{{backgroundColor}}" bindchange="onBgColorChange">
-      <view class="color-preview" style="background: {{backgroundColor}};">{{backgroundColor}}</view>
-    </picker>
+    <view class="custom-color-row">
+      <view class="color-swatch" style="background: {{backgroundColor}}; border: 1rpx solid #eeeeee;"></view>
+      <input
+        class="custom-color-input"
+        value="{{bgHexInput}}"
+        maxlength="7"
+        placeholder="#ffffff"
+        bindinput="onBgHexInput"
+        bindblur="applyBgHex"
+      />
+    </view>
   </view>
 
   <view class="card">
@@ -43,7 +79,7 @@
     </view>
 
     <text class="input-label">Logo 大小 ({{logoSize}}%)</text>
-    <slider min="10" max="30" value="{{logoSize}}" bindchange="onLogoSizeChange" activeColor="#7c6cf0" />
+    <slider min="10" max="30" value="{{logoSize}}" bindchange="onLogoSizeChange" bindchanging="onLogoSizeChanging" activeColor="#7c6cf0" />
   </view>
 
   <view class="card">

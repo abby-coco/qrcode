@@ -1,5 +1,6 @@
 const { generateVCard } = require('../../utils/vcard')
 const { saveRecord } = require('../../utils/storage')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -25,15 +26,32 @@ Page({
     }
 
     const vcard = generateVCard(this.data)
-    saveRecord({
-      type: 'vcard',
-      title: name,
-      content: vcard,
-      qrData: vcard
-    })
+    const cardTitle = `${name} 的名片`
 
-    wx.navigateTo({
-      url: `/pages/result/result?data=${encodeURIComponent(vcard)}&title=${encodeURIComponent(name + ' 的名片')}&type=vcard`
-    })
+    cloud.generateAndGo(vcard, cardTitle, 'vcard')
+      .then((result) => {
+        saveRecord({
+          type: 'vcard',
+          title: name,
+          content: vcard,
+          qrData: result.qrData
+        })
+        cloud.navigateToResult({
+          qrData: result.qrData,
+          rawContent: vcard,
+          title: cardTitle,
+          type: 'vcard',
+          isCloudLink: result.isCloudLink,
+          linkType: result.linkType,
+          cloudId: result.cloudId
+        })
+      })
+      .catch((err) => {
+        wx.showModal({
+          title: '生成失败',
+          content: err.message || '请检查云开发及 contentBaseUrl 配置',
+          showCancel: false
+        })
+      })
   }
 })

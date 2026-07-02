@@ -1,7 +1,7 @@
 <view class="container">
   <view class="card">
     <text class="section-title">联系人信息</text>
-    <text class="tip">扫码可直接保存到通讯录 (vCard 格式)</text>
+    <text class="tip">扫码后打开网页查看名片，可一键拨打电话</text>
 
     <text class="input-label">姓名 *</text>
     <input class="input-box" placeholder="请输入姓名" placeholder-class="input-placeholder" model:value="{{name}}" />

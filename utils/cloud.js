@@ -164,6 +164,48 @@ function prepareCombineForCloud(items) {
   }))
 }
 
+/**
+ * 收款码合并：先将收款码图片上传云存储，再生成 JSON
+ */
+function preparePaymentMergeForCloud(codes, layout, title) {
+  if (!codes || codes.length < 2) {
+    return Promise.reject(new Error('请至少添加两个收款码'))
+  }
+
+  let chain = Promise.resolve([])
+
+  codes.forEach((code) => {
+    chain = chain.then((acc) => {
+      const localPath = code.path
+      if (needsCloudUpload(localPath)) {
+        return uploadMediaFile(localPath, { type: 'image', name: code.label }).then((fileID) => {
+          acc.push({
+            type: code.type,
+            label: code.label,
+            fileID
+          })
+          return acc
+        })
+      }
+
+      acc.push({
+        type: code.type,
+        label: code.label,
+        fileID: localPath.startsWith('cloud://') ? localPath : ''
+      })
+      return acc
+    })
+  })
+
+  return chain.then((uploadedCodes) => JSON.stringify({
+    type: 'payment-merge',
+    title: title || '收款码合并',
+    layout: layout || 'vertical',
+    codes: uploadedCodes,
+    createTime: new Date().toISOString()
+  }))
+}
+
 function saveContent(content, title, type) {
   return callCloud('saveContent', { content, title: title || '', type: type || 'text' })
     .then((result) => {
@@ -265,6 +307,7 @@ module.exports = {
   saveContent,
   prepareQrData,
   prepareCombineForCloud,
+  preparePaymentMergeForCloud,
   navigateToResult,
   generateAndGo
 }

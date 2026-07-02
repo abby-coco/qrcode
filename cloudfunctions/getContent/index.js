@@ -34,6 +34,42 @@ function parseCombineContent(content) {
   return null
 }
 
+function parsePaymentMergeContent(content) {
+  try {
+    const data = typeof content === 'string' ? JSON.parse(content) : content
+    if (data && data.type === 'payment-merge' && Array.isArray(data.codes)) {
+      return data
+    }
+  } catch (e) {
+    // not payment merge json
+  }
+  return null
+}
+
+function parseVCard(content) {
+  const text = String(content || '')
+  if (!text.includes('BEGIN:VCARD')) return null
+
+  const fields = {}
+  text.split(/\r?\n/).forEach((line) => {
+    if (!line || line === 'BEGIN:VCARD' || line === 'END:VCARD') return
+    const idx = line.indexOf(':')
+    if (idx === -1) return
+    const key = line.slice(0, idx).split(';')[0].toUpperCase()
+    const value = line.slice(idx + 1).replace(/\\n/g, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';')
+    if (key === 'FN') fields.name = value
+    if (key === 'TEL') fields.phone = value
+    if (key === 'EMAIL') fields.email = value
+    if (key === 'ORG') fields.company = value
+    if (key === 'TITLE') fields.jobTitle = value
+    if (key === 'URL') fields.website = value
+    if (key === 'NOTE') fields.note = value
+    if (key === 'ADR') fields.address = value.split(';').filter(Boolean).pop() || value
+  })
+
+  return fields.name || fields.phone ? fields : null
+}
+
 async function resolveFileUrls(items) {
   const fileIDs = items
     .map((item) => item.fileID || item.content)
@@ -175,6 +211,78 @@ function wrapPageHtml(title, bodyHtml, badgeLabel) {
       background: #f8f9fc;
       border-radius: 12px;
     }
+    .contact-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .contact-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #f8f9fc;
+      border-radius: 12px;
+    }
+    .contact-label {
+      flex: 0 0 56px;
+      font-size: 14px;
+      color: #888;
+    }
+    .contact-value, .contact-link {
+      flex: 1;
+      font-size: 16px;
+      color: #333;
+      word-break: break-all;
+      text-decoration: none;
+    }
+    .contact-link { color: #7c6cf0; }
+    .payment-grid {
+      display: flex;
+      gap: 16px;
+    }
+    .payment-grid--vertical {
+      flex-direction: column;
+    }
+    .payment-grid--horizontal {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .payment-card {
+      flex: 1;
+      min-width: 140px;
+      background: #f8f9fc;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+    }
+    .payment-badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+    .payment-badge--wechat { background: #22c55e; }
+    .payment-badge--alipay { background: #3b82f6; }
+    .payment-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .payment-img {
+      width: 100%;
+      max-width: 220px;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .payment-tip {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #999;
+      text-align: center;
+    }
     .footer {
       text-align: center;
       margin-top: 24px;
@@ -205,6 +313,45 @@ async function buildCombineHtml(title, combineData) {
   return wrapPageHtml(title, itemsHtml)
 }
 
+function buildVCardHtml(title, contact) {
+  const rows = []
+  if (contact.name) rows.push(`<div class="contact-row"><span class="contact-label">姓名</span><span class="contact-value">${escapeHtml(contact.name)}</span></div>`)
+  if (contact.phone) rows.push(`<div class="contact-row"><span class="contact-label">手机</span><a class="contact-link" href="tel:${escapeAttr(contact.phone)}">${escapeHtml(contact.phone)}</a></div>`)
+  if (contact.email) rows.push(`<div class="contact-row"><span class="contact-label">邮箱</span><a class="contact-link" href="mailto:${escapeAttr(contact.email)}">${escapeHtml(contact.email)}</a></div>`)
+  if (contact.company) rows.push(`<div class="contact-row"><span class="contact-label">公司</span><span class="contact-value">${escapeHtml(contact.company)}</span></div>`)
+  if (contact.jobTitle) rows.push(`<div class="contact-row"><span class="contact-label">职位</span><span class="contact-value">${escapeHtml(contact.jobTitle)}</span></div>`)
+  if (contact.address) rows.push(`<div class="contact-row"><span class="contact-label">地址</span><span class="contact-value">${escapeHtml(contact.address)}</span></div>`)
+  if (contact.website) rows.push(`<div class="contact-row"><span class="contact-label">网站</span><a class="contact-link" href="${escapeAttr(contact.website)}" target="_blank" rel="noopener">${escapeHtml(contact.website)}</a></div>`)
+  if (contact.note) rows.push(`<div class="contact-row"><span class="contact-label">备注</span><span class="contact-value">${escapeHtml(contact.note)}</span></div>`)
+
+  const bodyHtml = `<div class="contact-card">${rows.join('')}</div>`
+  return wrapPageHtml(title, bodyHtml, '电子名片')
+}
+
+async function buildPaymentMergeHtml(title, mergeData) {
+  const items = mergeData.codes.map((code) => ({
+    type: 'image',
+    name: code.label,
+    fileID: code.fileID,
+    content: code.fileID
+  }))
+  const urlMap = await resolveFileUrls(items)
+  const layoutClass = mergeData.layout === 'horizontal' ? 'payment-grid--horizontal' : 'payment-grid--vertical'
+  const cardsHtml = mergeData.codes.map((code) => {
+    const url = urlMap[code.fileID] || ''
+    const label = escapeHtml(code.label || (code.type === 'wechat' ? '微信收款' : '支付宝收款'))
+    const badgeClass = code.type === 'wechat' ? 'payment-badge--wechat' : 'payment-badge--alipay'
+    const badgeText = code.type === 'wechat' ? '微信' : '支付宝'
+    if (!url) {
+      return `<div class="payment-card"><div class="payment-badge ${badgeClass}">${badgeText}</div><p class="item-missing">${label} 无法加载</p></div>`
+    }
+    return `<div class="payment-card"><div class="payment-badge ${badgeClass}">${badgeText}</div><div class="payment-label">${label}</div><img class="payment-img" src="${escapeAttr(url)}" alt="${label}"/></div>`
+  }).join('')
+
+  const bodyHtml = `<div class="payment-grid ${layoutClass}">${cardsHtml}</div><p class="payment-tip">长按收款码图片可识别或保存</p>`
+  return wrapPageHtml(title || mergeData.title || '收款码合并', bodyHtml, '收款码合并')
+}
+
 async function resolveCombineItems(items) {
   const urlMap = await resolveFileUrls(items)
   return items.map((item) => ({
@@ -232,11 +379,20 @@ exports.main = async (event) => {
     const doc = await db.collection('qr_contents').doc(id).get()
     const { content, title } = doc.data
     const combineData = parseCombineContent(content)
+    const paymentData = parsePaymentMergeContent(content)
+    const vcardData = parseVCard(content)
 
     if (isHttp) {
-      const body = combineData
-        ? await buildCombineHtml(title, combineData)
-        : buildPlainHtml(title, content)
+      let body
+      if (combineData) {
+        body = await buildCombineHtml(title, combineData)
+      } else if (paymentData) {
+        body = await buildPaymentMergeHtml(title, paymentData)
+      } else if (vcardData) {
+        body = buildVCardHtml(title, vcardData)
+      } else {
+        body = buildPlainHtml(title, content)
+      }
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'text/html; charset=utf-8' },

@@ -27,9 +27,11 @@ Page({
       }
       if (data.type === 'image') return `图片：${data.title || '图片二维码'}`
       if (data.type === 'video') return `视频：${data.title || '视频二维码'}`
+      if (data.type === 'payment-merge') return `收款码合并：${data.codes.length} 个收款码`
     } catch (e) {
       // plain text
     }
+    if (rawContent.includes('BEGIN:VCARD')) return '电子名片'
     return rawContent
   },
 
@@ -93,14 +95,22 @@ Page({
 
   onReady() {
     if (this.data.mode === 'qrcode' && this.data.qrData) {
-      this.renderQR()
+      this.scheduleRenderQR()
     }
   },
 
   onShow() {
     if (this.data.mode === 'qrcode' && this.data.qrData) {
-      this.renderQR()
+      this.scheduleRenderQR()
     }
+  },
+
+  scheduleRenderQR() {
+    if (this._renderTimer) clearTimeout(this._renderTimer)
+    this._renderTimer = setTimeout(() => {
+      this._renderTimer = null
+      this.renderQR()
+    }, 50)
   },
 
   renderQR() {
@@ -121,7 +131,9 @@ Page({
       errorCorrectionLevel: config.errorCorrectionLevel,
       component: this,
       callback: (err) => {
-        if (err) wx.showToast({ title: '二维码绘制失败', icon: 'none' })
+        if (err instanceof Error) {
+          wx.showToast({ title: '二维码绘制失败', icon: 'none' })
+        }
       }
     })
   },
@@ -131,6 +143,7 @@ Page({
       wx.showToast({ title: '小程序码暂不支持美化', icon: 'none' })
       return
     }
+    getApp().globalData.beautifyPreviewQrData = this.data.qrData
     wx.navigateTo({ url: '/pages/beautify/beautify' })
   },
 

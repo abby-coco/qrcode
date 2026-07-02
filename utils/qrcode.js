@@ -2,6 +2,21 @@ const drawQrcode = require('./weapp.qrcode.js')
 
 const CORRECT_LEVEL = { L: 1, M: 0, Q: 3, H: 2 }
 
+function buildLogoConfig(innerSize, logoPath, logoShape, logoSize, background, margin) {
+  const size = innerSize * logoSize
+  const dx = (innerSize - size) / 2 + margin
+  const dy = (innerSize - size) / 2 + margin
+  return {
+    imageResource: logoPath,
+    dx,
+    dy,
+    dWidth: size,
+    dHeight: size,
+    shape: logoShape,
+    background: background || '#ffffff'
+  }
+}
+
 function drawQRCode(options) {
   const {
     canvasId,
@@ -14,6 +29,7 @@ function drawQRCode(options) {
     logoShape = 'square',
     logoSize = 0.2,
     errorCorrectionLevel = 'M',
+    padding = 0.08,
     component = null,
     callback
   } = options
@@ -23,11 +39,20 @@ function drawQRCode(options) {
     return
   }
 
-  const imageConfig = logoPath ? buildLogoConfig(width, logoPath, logoShape, logoSize) : undefined
+  const margin = Math.round(Math.min(width, height) * padding)
+  const innerSize = Math.min(width, height) - margin * 2
+
+  const imageConfig = logoPath
+    ? buildLogoConfig(innerSize, logoPath, logoShape, logoSize, background, margin)
+    : undefined
 
   drawQrcode({
-    width,
-    height,
+    width: innerSize,
+    height: innerSize,
+    canvasWidth: width,
+    canvasHeight: height,
+    x: margin,
+    y: margin,
     canvasId,
     text,
     foreground,
@@ -35,27 +60,10 @@ function drawQRCode(options) {
     correctLevel: CORRECT_LEVEL[errorCorrectionLevel] ?? 0,
     _this: component,
     image: imageConfig,
-    callback: (err) => {
-      callback && callback(err || null)
+    callback: () => {
+      callback && callback(null)
     }
   })
-}
-
-function buildLogoConfig(width, logoPath, logoShape, logoSize) {
-  const size = width * logoSize
-  const dx = (width - size) / 2
-  const dy = (width - size) / 2
-  const config = {
-    imageResource: logoPath,
-    dx,
-    dy,
-    dWidth: size,
-    dHeight: size
-  }
-  if (logoShape === 'circle' || logoShape === 'round') {
-    config.round = true
-  }
-  return config
 }
 
 function saveQRCodeToAlbum(canvasId, component, callback) {

@@ -1,4 +1,5 @@
 const { saveRecord } = require('../../utils/storage')
+const cloud = require('../../utils/cloud')
 
 Page({
   data: {
@@ -59,29 +60,34 @@ Page({
       return
     }
 
-    const payload = JSON.stringify({
-      type: 'payment-merge',
-      title,
-      codes: codes.map(c => ({ type: c.type, label: c.label, path: c.path })),
-      layout: this.data.layout
-    })
+    wx.showLoading({ title: '上传收款码...', mask: true })
 
-    saveRecord({
-      type: 'payment',
-      title,
-      content: payload,
-      qrData: payload
-    })
-
-    wx.showModal({
-      title: '收款码合并',
-      content: '合并后的收款码图片已准备好。实际项目中可将多张图片合成为一张后生成二维码。当前已保存配置并生成跳转二维码。',
-      showCancel: false,
-      success: () => {
-        wx.navigateTo({
-          url: `/pages/result/result?data=${encodeURIComponent(payload)}&title=${encodeURIComponent(title)}&type=payment`
+    cloud.preparePaymentMergeForCloud(codes, this.data.layout, title)
+      .then((payload) => cloud.generateAndGo(payload, title, 'payment'))
+      .then((result) => {
+        saveRecord({
+          type: 'payment',
+          title,
+          content: result.rawContent,
+          qrData: result.qrData
         })
-      }
-    })
+        cloud.navigateToResult({
+          qrData: result.qrData,
+          rawContent: result.rawContent,
+          title,
+          type: 'payment',
+          isCloudLink: result.isCloudLink,
+          linkType: result.linkType,
+          cloudId: result.cloudId
+        })
+      })
+      .catch((err) => {
+        wx.hideLoading()
+        wx.showModal({
+          title: '生成失败',
+          content: err.message || '请检查云开发、云存储及 contentBaseUrl 配置',
+          showCancel: false
+        })
+      })
   }
 })
