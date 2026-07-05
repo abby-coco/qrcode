@@ -5,7 +5,6 @@ Page({
   data: {
     videoPath: '',
     title: '视频二维码',
-    mode: 'single',
     generating: false
   },
 
@@ -18,10 +17,6 @@ Page({
         this.setData({ videoPath: res.tempFiles[0].tempFilePath })
       }
     })
-  },
-
-  selectMode(e) {
-    this.setData({ mode: e.currentTarget.dataset.mode })
   },
 
   generate() {

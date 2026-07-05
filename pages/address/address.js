@@ -9,19 +9,6 @@ Page({
     longitude: ''
   },
 
-  chooseLocation() {
-    wx.chooseLocation({
-      success: (res) => {
-        this.setData({
-          name: res.name || res.address,
-          address: res.address,
-          latitude: String(res.latitude),
-          longitude: String(res.longitude)
-        })
-      }
-    })
-  },
-
   generate() {
     const { name, address, latitude, longitude } = this.data
     if (!address.trim() && !name.trim()) {

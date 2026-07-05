@@ -3,8 +3,6 @@
     <text class="section-title">地址信息</text>
     <text class="tip">扫码可打开地图导航</text>
 
-    <button class="btn-secondary" bindtap="chooseLocation" style="margin-bottom:24rpx;">📍 从地图选择</button>
-
     <text class="input-label">地点名称</text>
     <input class="input-box" placeholder="例如：XX公司" placeholder-class="input-placeholder" model:value="{{name}}" />
 

@@ -26,21 +26,3 @@
   color: #7c6cf0;
 }
 
-.option-row {
-  display: flex;
-  gap: 16rpx;
-}
-
-.option-chip {
-  padding: 12rpx 28rpx;
-  border-radius: 32rpx;
-  background: #f5f6fa;
-  font-size: 26rpx;
-  color: #666666;
-}
-
-.option-chip--active {
-  background: #fce7f3;
-  color: #ec4899;
-  font-weight: 500;
-}

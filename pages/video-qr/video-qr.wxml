@@ -18,12 +18,6 @@
 
     <text class="input-label">标题</text>
     <input class="input-box" placeholder="视频二维码标题" placeholder-class="input-placeholder" model:value="{{title}}" />
-
-    <text class="input-label">模式</text>
-    <view class="option-row">
-      <view class="option-chip {{mode === 'single' ? 'option-chip--active' : ''}}" bindtap="selectMode" data-mode="single">单视频</view>
-      <view class="option-chip {{mode === 'multi' ? 'option-chip--active' : ''}}" bindtap="selectMode" data-mode="multi">多视频</view>
-    </view>
   </view>
 
   <button class="btn-primary" bindtap="generate">生成视频二维码</button>

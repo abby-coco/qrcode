@@ -1,6 +1,6 @@
 const { drawQRCode, saveQRCodeToAlbum } = require('../../utils/qrcode')
 const cloud = require('../../utils/cloud')
-const { buildContentPreview } = require('../../utils/util')
+const { buildContentPreview, formatError } = require('../../utils/util')
 
 Page({
   data: {
@@ -17,6 +17,7 @@ Page({
     wxacodeUrl: '',
     canvasSize: 280,
     showCanvas: false,
+    qrLoading: false,
     rawPreview: ''
   },
 
@@ -70,7 +71,8 @@ Page({
       isCloudLink,
       linkType,
       isWxacode,
-      showCanvas: !isWxacode && !!qrData
+      showCanvas: !isWxacode && !!qrData,
+      qrLoading: isWxacode ? !!pending.wxacodeBase64 : !!qrData
     })
     wx.setNavigationBarTitle({ title })
 
@@ -86,9 +88,10 @@ Page({
       data: base64,
       encoding: 'base64',
       success: () => {
-        this.setData({ wxacodeUrl: filePath })
+        this.setData({ wxacodeUrl: filePath, qrLoading: false })
       },
       fail: () => {
+        this.setData({ qrLoading: false })
         wx.showToast({ title: '小程序码加载失败', icon: 'none' })
       }
     })
@@ -111,10 +114,12 @@ Page({
     this._renderTimer = setTimeout(() => {
       this._renderTimer = null
       this.renderQR()
-    }, 50)
+    }, 150)
   },
 
   renderQR() {
+    if (!this.data.showCanvas || !this.data.qrData) return
+
     const app = getApp()
     const config = app.globalData.beautifyConfig
     const { qrData, canvasSize } = this.data
@@ -132,8 +137,13 @@ Page({
       errorCorrectionLevel: config.errorCorrectionLevel,
       component: this,
       callback: (err) => {
-        if (err instanceof Error) {
-          wx.showToast({ title: '二维码绘制失败', icon: 'none' })
+        this.setData({ qrLoading: false })
+        if (err) {
+          wx.showModal({
+            title: '二维码绘制失败',
+            content: formatError(err, '请稍后重试'),
+            showCancel: false
+          })
         }
       }
     })

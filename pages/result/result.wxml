@@ -2,6 +2,10 @@
   <view class="card qr-card">
     <text class="qr-title">{{title}}</text>
     <view class="qr-wrap">
+      <view wx:if="{{qrLoading}}" class="qr-loading">
+        <text class="qr-loading__icon">⌛</text>
+        <text class="qr-loading__text">二维码生成中...</text>
+      </view>
       <image
         wx:if="{{isWxacode && wxacodeUrl}}"
         class="wxacode-image"
@@ -10,9 +14,9 @@
         show-menu-by-longpress
       />
       <canvas
-        wx:elif="{{showCanvas}}"
+        wx:if="{{showCanvas}}"
         canvas-id="qrCanvas"
-        class="qr-canvas"
+        class="qr-canvas {{qrLoading ? 'qr-canvas--hidden' : ''}}"
         style="width: {{canvasSize}}px; height: {{canvasSize}}px;"
       />
     </view>
