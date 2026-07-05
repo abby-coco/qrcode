@@ -9,7 +9,8 @@
       placeholder="请输入文本或网址"
       placeholder-class="input-placeholder"
       maxlength="{{maxLength}}"
-      model:value="{{content}}"
+      value="{{content}}"
+      bindinput="onContentInput"
       auto-height
     />
     <view class="char-count">{{content.length}}/{{maxLength}}</view>

@@ -1,5 +1,6 @@
 const { saveRecord } = require('../../utils/storage')
 const cloud = require('../../utils/cloud')
+const { formatError } = require('../../utils/util')
 
 Page({
   data: {
@@ -16,6 +17,10 @@ Page({
         title: options.mode === 'file' ? '文件二维码' : '生成二维码'
       })
     }
+  },
+
+  onContentInput(e) {
+    this.setData({ content: e.detail.value })
   },
 
   generate() {
@@ -52,7 +57,7 @@ Page({
         const hint = err.hint ? `\n\n${err.hint}` : ''
         wx.showModal({
           title: '生成失败',
-          content: ((err && err.message) || '请检查云开发配置') + hint,
+          content: formatError(err, '请检查云开发配置') + hint,
           showCancel: false
         })
       })

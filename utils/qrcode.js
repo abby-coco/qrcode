@@ -1,4 +1,5 @@
 const drawQrcode = require('./weapp.qrcode.js')
+const { toError } = require('./util.js')
 
 const CORRECT_LEVEL = { L: 1, M: 0, Q: 3, H: 2 }
 
@@ -39,6 +40,11 @@ function drawQRCode(options) {
     return
   }
 
+  if (!wx.createCanvasContext) {
+    callback && callback(new Error('当前环境不支持 canvas 绘制，请升级微信版本'))
+    return
+  }
+
   const margin = Math.round(Math.min(width, height) * padding)
   const innerSize = Math.min(width, height) - margin * 2
 
@@ -46,24 +52,28 @@ function drawQRCode(options) {
     ? buildLogoConfig(innerSize, logoPath, logoShape, logoSize, background, margin)
     : undefined
 
-  drawQrcode({
-    width: innerSize,
-    height: innerSize,
-    canvasWidth: width,
-    canvasHeight: height,
-    x: margin,
-    y: margin,
-    canvasId,
-    text,
-    foreground,
-    background,
-    correctLevel: CORRECT_LEVEL[errorCorrectionLevel] ?? 0,
-    _this: component,
-    image: imageConfig,
-    callback: () => {
-      callback && callback(null)
-    }
-  })
+  try {
+    drawQrcode({
+      width: innerSize,
+      height: innerSize,
+      canvasWidth: width,
+      canvasHeight: height,
+      x: margin,
+      y: margin,
+      canvasId,
+      text,
+      foreground,
+      background,
+      correctLevel: CORRECT_LEVEL[errorCorrectionLevel] ?? 0,
+      _this: component,
+      image: imageConfig,
+      callback: (drawErr) => {
+        callback && callback(drawErr ? toError(drawErr, '二维码绘制失败') : null)
+      }
+    })
+  } catch (err) {
+    callback && callback(toError(err, '二维码绘制失败'))
+  }
 }
 
 function saveQRCodeToAlbum(canvasId, component, callback) {

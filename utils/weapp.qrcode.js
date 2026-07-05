@@ -1299,49 +1299,56 @@ function drawQrcode(options) {
   createCanvas();
 
   function createCanvas() {
-    // create the qrcode itself
-    var qrcode = new QRCode(options.typeNumber, options.correctLevel);
-    qrcode.addData(utf16to8(options.text));
-    qrcode.make();
+    try {
+      var qrcode = new QRCode(options.typeNumber, options.correctLevel);
+      qrcode.addData(utf16to8(options.text));
+      qrcode.make();
 
-    // get canvas context
-    var ctx;
-    if (options.ctx) {
-      ctx = options.ctx;
-    } else {
-      ctx = options._this ? wx.createCanvasContext && wx.createCanvasContext(options.canvasId, options._this) : wx.createCanvasContext && wx.createCanvasContext(options.canvasId);
-    }
-
-    var canvasWidth = options.canvasWidth || options.width;
-    var canvasHeight = options.canvasHeight || options.height;
-    var offsetX = options.x || 0;
-    var offsetY = options.y || 0;
-
-    ctx.setFillStyle(options.background);
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-    // compute tileW/tileH based on options.width/options.height
-    var tileW = options.width / qrcode.getModuleCount();
-    var tileH = options.height / qrcode.getModuleCount();
-
-    // draw in the canvas
-    for (var row = 0; row < qrcode.getModuleCount(); row++) {
-      for (var col = 0; col < qrcode.getModuleCount(); col++) {
-        var style = qrcode.isDark(row, col) ? options.foreground : options.background;
-        ctx.setFillStyle(style);
-        var w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
-        var h = Math.ceil((row + 1) * tileW) - Math.floor(row * tileW);
-        ctx.fillRect(Math.round(col * tileW) + offsetX, Math.round(row * tileH) + offsetY, w, h);
+      var ctx;
+      if (options.ctx) {
+        ctx = options.ctx;
+      } else {
+        ctx = options._this
+          ? wx.createCanvasContext(options.canvasId, options._this)
+          : wx.createCanvasContext(options.canvasId);
       }
-    }
 
-    if (options.image.imageResource) {
-      drawCenterLogo(ctx, options.image, options.background);
-    }
+      if (!ctx) {
+        options.callback && options.callback(new Error('canvas 初始化失败'));
+        return;
+      }
 
-    ctx.draw(false, function () {
-      options.callback && options.callback(null);
-    });
+      var canvasWidth = options.canvasWidth || options.width;
+      var canvasHeight = options.canvasHeight || options.height;
+      var offsetX = options.x || 0;
+      var offsetY = options.y || 0;
+
+      ctx.setFillStyle(options.background);
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      var tileW = options.width / qrcode.getModuleCount();
+      var tileH = options.height / qrcode.getModuleCount();
+
+      for (var row = 0; row < qrcode.getModuleCount(); row++) {
+        for (var col = 0; col < qrcode.getModuleCount(); col++) {
+          var style = qrcode.isDark(row, col) ? options.foreground : options.background;
+          ctx.setFillStyle(style);
+          var w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
+          var h = Math.ceil((row + 1) * tileW) - Math.floor(row * tileW);
+          ctx.fillRect(Math.round(col * tileW) + offsetX, Math.round(row * tileH) + offsetY, w, h);
+        }
+      }
+
+      if (options.image.imageResource) {
+        drawCenterLogo(ctx, options.image, options.background);
+      }
+
+      ctx.draw(false, function () {
+        options.callback && options.callback(null);
+      });
+    } catch (e) {
+      options.callback && options.callback(e);
+    }
   }
 }
 

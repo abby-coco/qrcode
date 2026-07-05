@@ -37,17 +37,25 @@
       "ignore": [],
       "disablePlugins": [],
       "outputPath": ""
-    }
+    },
+    "compileWorklet": false,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "compileType": "miniprogram",
   "miniprogramRoot": "./",
   "cloudfunctionRoot": "cloudfunctions/",
-  "libVersion": "3.3.4",
-  "appid": "touristappid",
+  "libVersion": "3.16.2",
+  "appid": "wx5189cbce4576834e",
   "projectname": "qrcode",
   "condition": {},
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
-  }
+  },
+  "simulatorPluginLibVersion": {}
 }

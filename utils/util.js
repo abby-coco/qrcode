@@ -13,6 +13,45 @@ function truncate(str, len = 30) {
   return str.length > len ? str.slice(0, len) + '...' : str
 }
 
+function isUselessMessage(value) {
+  if (!value || typeof value !== 'string') return true
+  const text = value.trim()
+  return !text || text.includes('[object Object]')
+}
+
+function formatError(err, fallback = '操作失败') {
+  if (err == null || err === '') return fallback
+  if (typeof err === 'string') return isUselessMessage(err) ? fallback : err
+
+  const candidates = [err.errMsg, err.message, err.msg, err.error, err.hint, err.reason]
+  for (let i = 0; i < candidates.length; i += 1) {
+    const c = candidates[i]
+    if (!c) continue
+    if (typeof c === 'string' && !isUselessMessage(c)) return c
+    if (typeof c === 'object') {
+      const nested = formatError(c, '')
+      if (nested) return nested
+    }
+  }
+
+  const code = err.errCode != null ? err.errCode : err.code
+  if (code != null) return `${fallback} (code: ${code})`
+
+  try {
+    const json = JSON.stringify(err)
+    if (json && json !== '{}') return json
+  } catch (e) { /* ignore */ }
+
+  return fallback
+}
+
+function toError(err, fallback = '操作失败') {
+  if (err instanceof Error && !isUselessMessage(err.message)) return err
+  const error = new Error(formatError(err, fallback))
+  if (err && err.hint) error.hint = err.hint
+  return error
+}
+
 function validateUrl(url) {
   return /^https?:\/\/.+/i.test(url)
 }
@@ -96,6 +135,8 @@ function buildContentPreview(content, extras = {}) {
 module.exports = {
   formatTime,
   truncate,
+  formatError,
+  toError,
   validateUrl,
   generateCombinePayload,
   generateAddressGeo,

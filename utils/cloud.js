@@ -1,4 +1,5 @@
 const cloudConfig = require('../config/cloud.js')
+const { formatError, toError } = require('./util.js')
 
 function isHttpUrl(text) {
   return /^https?:\/\/.+/i.test(String(text).trim())
@@ -9,7 +10,7 @@ function isCloudReady() {
 }
 
 function formatCloudError(name, err) {
-  const msg = String((err && (err.errMsg || err.message)) || '调用失败')
+  const msg = formatError(err, '调用失败')
   const codeMatch = msg.match(/errCode:\s*(-?\d+)/)
   const code = (err && err.errCode) || (codeMatch && codeMatch[1])
 
@@ -30,23 +31,35 @@ function formatCloudError(name, err) {
 }
 
 function callCloud(name, data, timeoutMs = 25000) {
-  return new Promise((resolve, reject) => {
-    if (!isCloudReady()) {
-      reject(new Error('当前环境不支持云开发，请使用微信开发者工具并开通云开发'))
-      return
-    }
+  if (!isCloudReady()) {
+    return Promise.reject(new Error('当前环境不支持云开发，请使用微信开发者工具并开通云开发'))
+  }
 
-    let settled = false
-    const timer = setTimeout(() => {
+  const options = { name, data }
+  if (cloudConfig.envId) {
+    options.config = { env: cloudConfig.envId }
+  }
+
+  let settled = false
+  let timer
+  const cloudPromise = wx.cloud.callFunction(options)
+
+  return new Promise((resolve, reject) => {
+    timer = setTimeout(() => {
       if (settled) return
       settled = true
       reject(new Error(`[${name}] 请求超时，请确认云函数已部署`))
     }, timeoutMs)
 
-    const request = {
-      name,
-      data,
-      success: (res) => {
+    if (!cloudPromise || typeof cloudPromise.then !== 'function') {
+      settled = true
+      clearTimeout(timer)
+      reject(new Error('当前基础库不支持云函数，请升级微信版本'))
+      return
+    }
+
+    cloudPromise
+      .then((res) => {
         if (settled) return
         settled = true
         clearTimeout(timer)
@@ -55,20 +68,13 @@ function callCloud(name, data, timeoutMs = 25000) {
           return
         }
         resolve(res.result)
-      },
-      fail: (err) => {
+      })
+      .catch((err) => {
         if (settled) return
         settled = true
         clearTimeout(timer)
         reject(new Error(formatCloudError(name, err)))
-      }
-    }
-
-    if (cloudConfig.envId) {
-      request.config = { env: cloudConfig.envId }
-    }
-
-    wx.cloud.callFunction(request)
+      })
   })
 }
 
@@ -87,7 +93,7 @@ function getSubmissions(templateId) {
   return callCloud('getSubmissions', { templateId })
     .then((result) => {
       if (result.success) return result
-      throw new Error(result.errMsg || '[getSubmissions] 获取失败')
+      throw toError(result, '[getSubmissions] 获取失败')
     })
 }
 
@@ -111,23 +117,21 @@ function uploadMediaFile(filePath, item) {
   const ext = getCloudExt(item)
   const cloudPath = `combine/${item.type}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`
 
-  return new Promise((resolve, reject) => {
-    const options = {
-      cloudPath,
-      filePath,
-      success: (res) => resolve(res.fileID),
-      fail: (err) => reject(new Error(err.errMsg || '文件上传失败'))
-    }
-    if (cloudConfig.envId) {
-      options.config = { env: cloudConfig.envId }
-    }
-    wx.cloud.uploadFile(options)
-  })
+  const options = { cloudPath, filePath }
+  if (cloudConfig.envId) {
+    options.config = { env: cloudConfig.envId }
+  }
+
+  const uploadPromise = wx.cloud.uploadFile(options)
+  if (!uploadPromise || typeof uploadPromise.then !== 'function') {
+    return Promise.reject(new Error('当前基础库不支持云存储，请升级微信版本'))
+  }
+
+  return uploadPromise
+    .then((res) => res.fileID)
+    .catch((err) => Promise.reject(toError(err, '文件上传失败')))
 }
 
-/**
- * 组合码：先将图片/视频/音频/文件上传云存储，再生成 JSON
- */
 function prepareCombineForCloud(items) {
   if (!items || !items.length) {
     return Promise.reject(new Error('请至少添加一项内容'))
@@ -138,11 +142,7 @@ function prepareCombineForCloud(items) {
   items.forEach((item) => {
     chain = chain.then((acc) => {
       if (item.type === 'text') {
-        acc.push({
-          type: 'text',
-          name: item.name || '文字',
-          content: item.content || ''
-        })
+        acc.push({ type: 'text', name: item.name || '文字', content: item.content || '' })
         return acc
       }
 
@@ -177,9 +177,6 @@ function prepareCombineForCloud(items) {
   }))
 }
 
-/**
- * 收款码合并：先将收款码图片上传云存储，再生成 JSON
- */
 function preparePaymentMergeForCloud(codes, layout, title) {
   if (!codes || codes.length < 2) {
     return Promise.reject(new Error('请至少添加两个收款码'))
@@ -192,11 +189,7 @@ function preparePaymentMergeForCloud(codes, layout, title) {
       const localPath = code.path
       if (needsCloudUpload(localPath)) {
         return uploadMediaFile(localPath, { type: 'image', name: code.label }).then((fileID) => {
-          acc.push({
-            type: code.type,
-            label: code.label,
-            fileID
-          })
+          acc.push({ type: code.type, label: code.label, fileID })
           return acc
         })
       }
@@ -222,19 +215,13 @@ function preparePaymentMergeForCloud(codes, layout, title) {
 function saveContent(content, title, type) {
   return callCloud('saveContent', { content, title: title || '', type: type || 'text' })
     .then((result) => {
-      if (result.success && result.id) {
-        return result
-      }
-      const err = new Error(result.errMsg || '[saveContent] 保存失败')
-      err.hint = result.hint || '请在云开发控制台创建集合 qr_contents'
+      if (result.success && result.id) return result
+      const err = toError(result, '[saveContent] 保存失败')
+      if (!err.hint) err.hint = result.hint || '请在云开发控制台创建集合 qr_contents'
       throw err
     })
 }
 
-/**
- * 纯文本 → saveContent → HTTP 链接 → 方形二维码
- * 网址（http/https）直接生成二维码
- */
 function prepareQrData(content, title, type) {
   const trimmed = String(content || '').trim()
   if (!trimmed) {
@@ -294,7 +281,7 @@ function navigateToResult(options) {
     fail: (err) => {
       wx.showModal({
         title: '跳转失败',
-        content: (err && err.errMsg) || '无法打开结果页',
+        content: formatError(err, '无法打开结果页'),
         showCancel: false
       })
     }
@@ -310,7 +297,7 @@ function generateAndGo(content, title, type) {
     })
     .catch((err) => {
       wx.hideLoading()
-      throw err
+      throw toError(err, '生成失败')
     })
 }
 
